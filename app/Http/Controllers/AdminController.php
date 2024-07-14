@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Models\TutorSession;
 use App\Models\Feedback;
 use App\Models\Subject;
+use App\Models\Payment;
 use App\Models\UserNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -37,8 +38,9 @@ class AdminController extends Controller
             ->get();
 
         $subjects = Subject::all();
+        $payments = Payment::with(['student', 'tutor'])->get();
 
-        return view('admin-dashboard', compact('admin','totalTutors', 'totalStudents', 'totalSessions', 'pendingApprovals', 'tutors', 'students', 'recentSessions', 'subjects'));
+        return view('admin-dashboard', compact('admin', 'totalTutors', 'totalStudents', 'totalSessions', 'pendingApprovals', 'tutors', 'students', 'recentSessions', 'subjects', 'payments'));
     }
 
     public function approveTutor(Request $request, $id)
@@ -47,14 +49,14 @@ class AdminController extends Controller
         $tutor->status = 'Verified';
         $tutor->save();
 
-        // Send notification to the tutor
         UserNotification::create([
             'user_id' => $tutor->id,
             'message' => 'Your account has been approved by the admin. Please set your subject prices, durations, and availabilities.',
             'is_read' => false,
         ]);
 
-        return response()->json(['status' => 'success', 'message' => 'Tutor approved successfully!']);
+        return redirect()->route('admin.dashboard', ['section' => 'tutorsList'])
+                         ->with('status', 'Tutor approved successfully!');
     }
 
     public function addImage(Request $request, $id)
@@ -70,10 +72,12 @@ class AdminController extends Controller
             $subject->image = $imagePath;
             $subject->save();
 
-            return response()->json(['status' => 'success', 'message' => 'Subject image has been added.']);
+            return redirect()->route('admin.dashboard', ['section' => 'subjectsList'])
+                             ->with('status', 'Subject image has been added.');
         }
 
-        return response()->json(['status' => 'error', 'message' => 'Failed to upload image.'], 400);
+        return redirect()->route('admin.dashboard', ['section' => 'subjectsList'])
+                         ->with('error', 'Failed to upload image.');
     }
 
     public function addDescription(Request $request, $id)
@@ -86,6 +90,7 @@ class AdminController extends Controller
         $subject->description = $request->description;
         $subject->save();
 
-        return response()->json(['status' => 'success', 'message' => 'Description has been added.']);
+        return redirect()->route('admin.dashboard', ['section' => 'subjectsList'])
+                         ->with('status', 'Description has been added.');
     }
 }

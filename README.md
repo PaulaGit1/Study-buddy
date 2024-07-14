@@ -68,4 +68,4 @@ If you discover a security vulnerability within this application, please send an
 
 ### License
 
-The Stuy Buddy  project is open-sourced software licensed under the [Apache license]( http://www.apache.org/licenses/).
+The Study Buddy  project is open-sourced software licensed under the [Apache license]( http://www.apache.org/licenses/).

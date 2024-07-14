@@ -118,11 +118,26 @@ class AuthController extends Controller
         if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
             $request->session()->regenerate();
 
-            return redirect('/')->with('status', 'Welcome ' . ucfirst($user->role) . ', you have logged in successfully.');
+            $role = $user->role;
+            $message = 'Welcome ' . ucfirst($role) . ', you have logged in successfully.';
+
+            // Redirect based on role
+            switch ($role) {
+                case 'Admin':
+                    return redirect()->route('admin.dashboard')->with('status', $message);
+                case 'Tutor':
+                    return redirect()->route('tutor.dashboard')->with('status', $message);
+                case 'Student':
+                    return redirect('/')->with('status', $message);
+                default:
+                    Auth::logout();
+                    return redirect('/login')->with('error', 'Unauthorized access.');
+            }
         }
 
         return back()->with('error', 'The provided credentials do not match our records.')->withInput();
     }
+
 
     public function logout(Request $request)
     {
