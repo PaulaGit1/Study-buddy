@@ -47,7 +47,7 @@ php artisan queue:work
 Run project locally 
 ```
 php artisan serve
-
+```
 
 
 ### Developer Instructions
